@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Une calculatrice moderne avec design époustouflant et animations fluides">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Calculatrice">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect fill='url(%23grad)' width='192' height='192' rx='40'/><text x='96' y='110' font-size='100' fill='white' text-anchor='middle' font-weight='bold' font-family='Arial'>C</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><rect fill='url(%23grad)' width='180' height='180' rx='40'/><text x='90' y='105' font-size='90' fill='white' text-anchor='middle' font-weight='bold' font-family='Arial'>C</text></svg>">
+    <title>Calculatrice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: colorShift 8s ease infinite;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.04) 0, transparent 25%),
+                radial-gradient(circle at 80% 25%, rgba(255,255,255,0.05) 0, transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(255,255,255,0.03) 0, transparent 23%),
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @keyframes colorShift {
+            0%, 100% {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            25% {
+                background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+            }
+            50% {
+                background: linear-gradient(135deg, #f093fb 0%, #4facfe 100%);
+            }
+            75% {
+                background: linear-gradient(135deg, #4facfe 0%, #667eea 100%);
+            }
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .spider {
+            position: absolute;
+            top: 18%;
+            left: 25%;
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+            animation: spiderWalk 10s ease-in-out infinite alternate;
+            display: none;
+        }
+
+        .spider::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            width: 2px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(-50%);
+            opacity: 0.8;
+        }
+
+        .spider__body {
+            position: absolute;
+            inset: 22px 28px;
+            border-radius: 50%;
+            background: #2d3436;
+            box-shadow: inset -3px -3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .spider__leg {
+            position: absolute;
+            width: 42px;
+            height: 4px;
+            background: #2d3436;
+            border-radius: 4px;
+            transform-origin: left center;
+        }
+
+        .spider__leg:nth-child(2) { top: 20px; left: 0; transform: rotate(20deg); }
+        .spider__leg:nth-child(3) { top: 30px; left: 0; transform: rotate(-20deg); }
+        .spider__leg:nth-child(4) { top: 44px; left: 0; transform: rotate(20deg); }
+        .spider__leg:nth-child(5) { top: 54px; left: 0; transform: rotate(-20deg); }
+        .spider__leg:nth-child(6) { top: 20px; right: 0; transform: rotate(160deg); }
+        .spider__leg:nth-child(7) { top: 30px; right: 0; transform: rotate(200deg); }
+        .spider__leg:nth-child(8) { top: 44px; right: 0; transform: rotate(160deg); }
+        .spider__leg:nth-child(9) { top: 54px; right: 0; transform: rotate(200deg); }
+
+        @keyframes spiderWalk {
+            0% { transform: translate(0, 0) scale(0.9); }
+            50% { transform: translate(40px, 12px) scale(1.05); }
+            100% { transform: translate(-20px, -10px) scale(0.95); }
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 22px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 22px;
+            width: 340px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .display {
+            background: #2d3436;
+            color: #00ff00;
+            font-size: 2.5em;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 60px;
+            word-wrap: break-word;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .number {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .number:hover {
+            background: #bdc3c7;
+        }
+
+        .operator {
+            background: #667eea;
+            color: white;
+        }
+
+        .operator:hover {
+            background: #5568d3;
+        }
+
+        .equals {
+            background: #27ae60;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .equals:hover {
+            background: #229954;
+        }
+
+        .clear {
+            background: #e74c3c;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .clear:hover {
+            background: #c0392b;
+        }
+
+        .delete {
+            background: #f39c12;
+            color: white;
+        }
+
+        .delete:hover {
+            background: #d68910;
+        }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="spider" aria-hidden="true">
+            <div class="spider__body"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+            <div class="spider__leg"></div>
+        </div>
+
+        <div class="calculator">
+            <div class="display" id="display">0</div>
+            <div class="buttons">
+                <button class="clear" onclick="clearDisplay()">Effacer</button>
+                <button class="delete" onclick="deleteLast()">Retour</button>
+                <button class="operator" onclick="appendOperator('/')">/</button>
+                
+                <button class="number" onclick="appendNumber('7')">7</button>
+                <button class="number" onclick="appendNumber('8')">8</button>
+                <button class="number" onclick="appendNumber('9')">9</button>
+                <button class="operator" onclick="appendOperator('*')">×</button>
+                
+                <button class="number" onclick="appendNumber('4')">4</button>
+                <button class="number" onclick="appendNumber('5')">5</button>
+                <button class="number" onclick="appendNumber('6')">6</button>
+                <button class="operator" onclick="appendOperator('-')">−</button>
+                
+                <button class="number" onclick="appendNumber('1')">1</button>
+                <button class="number" onclick="appendNumber('2')">2</button>
+                <button class="number" onclick="appendNumber('3')">3</button>
+                <button class="operator" onclick="appendOperator('+')">+</button>
+                
+                <button class="number" onclick="appendNumber('0')">0</button>
+                <button class="number" onclick="appendNumber('.')">.</button>
+                <button class="equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let operator = '';
+        let previousValue = '';
+        let shouldResetDisplay = false;
+        let isError = false;
+
+        function updateDisplay() {
+            display.textContent = currentInput || '0';
+        }
+
+        function resetError() {
+            if (isError) {
+                currentInput = '0';
+                operator = '';
+                previousValue = '';
+                shouldResetDisplay = false;
+                isError = false;
+            }
+        }
+
+        function setError(message) {
+            currentInput = message;
+            operator = '';
+            previousValue = '';
+            shouldResetDisplay = true;
+            isError = true;
+            updateDisplay();
+        }
+
+        function appendNumber(num) {
+            if (isError) resetError();
+            if (shouldResetDisplay) {
+                currentInput = num === '.' ? '0.' : num;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput === '0' && num !== '.') {
+                    currentInput = num;
+                } else if (num === '.' && currentInput.includes('.')) {
+                    return;
+                } else {
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (isError) return;
+            if (operator !== '' && !shouldResetDisplay) {
+                calculate();
+                if (isError) return;
+            }
+            previousValue = currentInput;
+            operator = op;
+            shouldResetDisplay = true;
+        }
+
+        function calculate() {
+            if (operator === '' || shouldResetDisplay) return;
+
+            const prev = parseFloat(previousValue);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) {
+                setError('Erreur');
+                return;
+            }
+
+            let result;
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        setError('Erreur');
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            currentInput = result.toString();
+            operator = '';
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = '';
+            previousValue = '';
+            shouldResetDisplay = false;
+            isError = false;
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (isError) {
+                clearDisplay();
+                return;
+            }
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Gestion du clavier
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9') appendNumber(event.key);
+            if (event.key === '.') appendNumber('.');
+            if (event.key === '+' || event.key === '-') appendOperator(event.key);
+            if (event.key === '*') {
+                event.preventDefault();
+                appendOperator('*');
+            }
+            if (event.key === '/') {
+                event.preventDefault();
+                appendOperator('/');
+            }
+            if (event.key === 'Enter' || event.key === '=') {
+                event.preventDefault();
+                calculate();
+            }
+            if (event.key === 'Backspace') {
+                event.preventDefault();
+                deleteLast();
+            }
+            if (event.key === 'Escape') {
+                clearDisplay();
+            }
+        });
+
+        // Enregistrer le Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker installé:', reg))
+                .catch(err => console.log('Erreur Service Worker:', err));
+        }
+
+        // Gérer l'événement d'installation PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Vous pouvez afficher un bouton d'installation ici
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('Application installée avec succès !');
+            deferredPrompt = null;
+        });
+    </script>
+</body>
+</html>
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
